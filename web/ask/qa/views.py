@@ -3,13 +3,15 @@ from django.shortcuts import render
 from django.http import HttpResponse 
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET
+from django.core.urlresolvers import reverse
+from qa.models import Question
 
 def test(request, *args, **kwargs):
     return HttpResponse('OK')
 
 @require_GET
 def question_list(request, sort): 
-    if sort == 'new':
+    if sort == 'newest':
         qs = Question.objects.new()
     elif sort == 'popular':
         qs = Question.objects.popular()
@@ -36,6 +38,7 @@ def question_list(request, sort):
     except EmptyPage: 
         page = paginator.page(paginator.num_pages) 
 
+
     return render(request, 'qs_list.html', {
         'questions': page.object_list,
         'paginator': paginator,
@@ -50,5 +53,5 @@ def question_details(request, qid):
         raise Http404
     return render(request, 'question.html', {
         'question': question,
-        'answers': question.answers.all,
+        'answers': question.answer_set.all(),
     })
